@@ -16,11 +16,11 @@ This document defines the step-by-step development plan and methodology for the 
   - Configure project references
   - Status: [COMPLETED]
 
-- [PENDING] **Step 1.2**: Setup Entity Framework Core
+- [COMPLETED] **Step 1.2**: Setup Entity Framework Core
   - Install EF Core packages
   - Configure DbContext
   - Setup In-Memory database provider
-  - Status: [PENDING]
+  - Status: [COMPLETED]
 
 - [PENDING] **Step 1.3**: Setup MediatR
   - Install MediatR packages
