@@ -275,11 +275,36 @@ async function updateStatus(orderId: string, newStatus: string): Promise<void> {
 }
 
 .order-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 2rem;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.order-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+  border-color: #667eea;
+}
+
+.order-card:hover::before {
+  transform: scaleX(1);
 }
 
 .order-header {
@@ -310,9 +335,12 @@ async function updateStatus(orderId: string, newStatus: string): Promise<void> {
 }
 
 .order-total {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #27ae60;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
 }
 
@@ -356,6 +384,11 @@ async function updateStatus(orderId: string, newStatus: string): Promise<void> {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 2px solid #e0e0e0;
+  background: linear-gradient(to bottom, transparent, rgba(102, 126, 234, 0.03));
+  border-radius: 0 0 12px 12px;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0.5rem;
 }
 
 .order-actions h4 {
@@ -367,8 +400,12 @@ async function updateStatus(orderId: string, newStatus: string): Promise<void> {
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   align-items: center;
+}
+
+.action-buttons .btn {
+  min-width: 160px;
 }
 
 .final-status-message {

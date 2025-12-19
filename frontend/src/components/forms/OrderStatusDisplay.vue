@@ -37,36 +37,43 @@ const statusString = computed(() => {
 <style scoped>
 .order-status {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: capitalize;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
 }
 
 .status-pending {
-  background-color: #fff3cd;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
   color: #856404;
+  border: 1px solid #ffc107;
 }
 
 .status-paid {
-  background-color: #d1ecf1;
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
   color: #0c5460;
+  border: 1px solid #17a2b8;
 }
 
 .status-shipped {
-  background-color: #cce5ff;
+  background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
   color: #004085;
+  border: 1px solid #0066cc;
 }
 
 .status-delivered {
-  background-color: #d4edda;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   color: #155724;
+  border: 1px solid #28a745;
 }
 
 .status-cancelled {
-  background-color: #f8d7da;
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
   color: #721c24;
+  border: 1px solid #dc3545;
 }
 </style>
 

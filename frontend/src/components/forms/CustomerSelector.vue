@@ -154,17 +154,20 @@ function filterCustomers(): void {
 
 .search-input {
   width: 100%;
-  padding: 1rem;
+  padding: 1.125rem 1.25rem;
   font-size: 1.125rem;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  transition: all 0.2s;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .dropdown {
@@ -221,10 +224,23 @@ function filterCustomers(): void {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background-color: #e8f5e9;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
   border: 2px solid #4caf50;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .selected-info {
