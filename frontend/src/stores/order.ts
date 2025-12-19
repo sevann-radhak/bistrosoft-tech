@@ -21,10 +21,14 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function updateOrderStatus(id: string, data: UpdateOrderStatusDto): Promise<OrderDto> {
+  async function updateOrderStatus(id: string, status: string): Promise<OrderDto> {
     loading.value = true
     error.value = null
     try {
+      const data: UpdateOrderStatusDto = {
+        orderId: id,
+        status: status as any
+      }
       const order = await orderService.updateStatus(id, data)
       return order
     } catch (err) {

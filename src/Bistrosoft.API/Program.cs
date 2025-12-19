@@ -53,6 +53,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<Bistrosoft.Infrastructure.Data.ApplicationDbContext>();
+    await Bistrosoft.Infrastructure.Data.DbInitializer.SeedProductsAsync(context);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

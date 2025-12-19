@@ -52,7 +52,14 @@ export interface ProductDto {
   stockQuantity: number
 }
 
+export interface CreateProductDto {
+  name: string
+  price: number
+  stockQuantity: number
+}
+
 export interface UpdateOrderStatusDto {
+  orderId: string
   status: OrderStatus
 }
 

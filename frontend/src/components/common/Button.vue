@@ -2,7 +2,7 @@
   <button
     :type="type"
     :disabled="disabled || loading"
-    :class="['btn', `btn-${variant}`, { 'btn-loading': loading }]"
+    :class="['btn', `btn-${variant}`, `btn-${size}`, { 'btn-loading': loading }]"
     @click="$emit('click')"
   >
     <span v-if="loading" class="spinner"></span>
@@ -14,6 +14,7 @@
 interface Props {
   type?: 'button' | 'submit' | 'reset'
   variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'small' | 'medium' | 'large'
   disabled?: boolean
   loading?: boolean
 }
@@ -21,6 +22,7 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   type: 'button',
   variant: 'primary',
+  size: 'medium',
   disabled: false,
   loading: false
 })
@@ -32,17 +34,31 @@ defineEmits<{
 
 <style scoped>
 .btn {
-  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-medium {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  border-radius: 12px;
 }
 
 .btn:disabled {
