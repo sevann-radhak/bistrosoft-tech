@@ -1,22 +1,22 @@
 <template>
   <div class="customer-orders-view">
-    <div v-if="customerStore.loading" class="loading">
-      Loading customer orders...
+    <div v-if="loading" class="loading">
+      <p>Loading customer orders...</p>
     </div>
     
-    <div v-else-if="customerStore.error" class="error">
-      <ErrorMessage :message="customerStore.error" />
+    <div v-else-if="error" class="error">
+      <ErrorMessage :message="error" />
       <Button @click="loadOrders">Retry</Button>
     </div>
     
     <div v-else>
       <div class="header">
         <h1>Customer Orders</h1>
-        <div v-if="customerStore.currentCustomer" class="customer-info">
-          <h2>{{ customerStore.currentCustomer.name }}</h2>
-          <p>{{ customerStore.currentCustomer.email }}</p>
-          <p v-if="customerStore.currentCustomer.phoneNumber">
-            {{ customerStore.currentCustomer.phoneNumber }}
+        <div v-if="customer" class="customer-info">
+          <h2>{{ customer.name }}</h2>
+          <p>{{ customer.email }}</p>
+          <p v-if="customer.phoneNumber">
+            {{ customer.phoneNumber }}
           </p>
         </div>
       </div>
@@ -65,6 +65,48 @@
               </li>
             </ul>
           </div>
+          
+          <div class="order-actions">
+            <h4>Order Actions:</h4>
+            <div class="action-buttons">
+              <Button
+                v-if="canMarkAsPaid(order.status)"
+                size="large"
+                @click="updateStatus(order.id, 'Paid')"
+                :loading="updatingStatusId === order.id && orderStore.loading"
+              >
+                ✓ Mark as Paid
+              </Button>
+              <Button
+                v-if="canMarkAsShipped(order.status)"
+                size="large"
+                @click="updateStatus(order.id, 'Shipped')"
+                :loading="updatingStatusId === order.id && orderStore.loading"
+              >
+                🚚 Mark as Shipped
+              </Button>
+              <Button
+                v-if="canMarkAsDelivered(order.status)"
+                size="large"
+                @click="updateStatus(order.id, 'Delivered')"
+                :loading="updatingStatusId === order.id && orderStore.loading"
+              >
+                ✅ Mark as Delivered
+              </Button>
+              <Button
+                v-if="canCancel(order.status)"
+                variant="danger"
+                size="large"
+                @click="updateStatus(order.id, 'Cancelled')"
+                :loading="updatingStatusId === order.id && orderStore.loading"
+              >
+                ✕ Cancel Order
+              </Button>
+              <p v-if="isFinalStatus(order.status)" class="final-status-message">
+                This order has been completed and cannot be modified.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -72,30 +114,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCustomerStore } from '../stores'
+import { useCustomerStore, useOrderStore } from '../stores'
 import { Button, ErrorMessage } from '../components/common'
 import OrderStatusDisplay from '../components/forms/OrderStatusDisplay.vue'
-import type { OrderDto } from '../services/api/types'
+import type { OrderDto, CustomerDto, OrderStatus } from '../services/api/types'
 
 const route = useRoute()
 const router = useRouter()
 const customerStore = useCustomerStore()
+const orderStore = useOrderStore()
 
 const customerId = computed(() => route.params.id as string)
-const orders = computed(() => customerStore.currentCustomer?.orders || [])
+const customer = ref<CustomerDto | null>(null)
+const orders = ref<OrderDto[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const updatingStatusId = ref<string | null>(null)
 
 onMounted(async () => {
   await loadOrders()
 })
 
+watch(() => route.params.id, async () => {
+  await loadOrders()
+})
+
 async function loadOrders(): Promise<void> {
+  loading.value = true
+  error.value = null
+  
   try {
     await customerStore.fetchCustomer(customerId.value)
-    await customerStore.fetchCustomerOrders(customerId.value)
-  } catch (error) {
-    console.error('Failed to load orders:', error)
+    const fetchedOrders = await customerStore.fetchCustomerOrders(customerId.value)
+    
+    customer.value = customerStore.currentCustomer
+    orders.value = fetchedOrders
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load orders'
+    console.error('Failed to load orders:', err)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -109,6 +169,41 @@ function formatDate(dateString: string): string {
     minute: '2-digit'
   })
 }
+
+function canMarkAsPaid(status: OrderStatus | string): boolean {
+  return status === 'Pending' || status === 0
+}
+
+function canMarkAsShipped(status: OrderStatus | string): boolean {
+  return status === 'Paid' || status === 1
+}
+
+function canMarkAsDelivered(status: OrderStatus | string): boolean {
+  return status === 'Shipped' || status === 2
+}
+
+function canCancel(status: OrderStatus | string): boolean {
+  return status === 'Pending' || status === 'Paid' || status === 0 || status === 1
+}
+
+function isFinalStatus(status: OrderStatus | string): boolean {
+  return status === 'Delivered' || status === 'Cancelled' || status === 3 || status === 4
+}
+
+async function updateStatus(orderId: string, newStatus: string): Promise<void> {
+  updatingStatusId.value = orderId
+  orderStore.clearError()
+  
+  try {
+    await orderStore.updateOrderStatus(orderId, newStatus)
+    await loadOrders()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to update order status'
+    console.error('Failed to update order status:', err)
+  } finally {
+    updatingStatusId.value = null
+  }
+}
 </script>
 
 <style scoped>
@@ -118,10 +213,23 @@ function formatDate(dateString: string): string {
   padding: 2rem;
 }
 
-.loading,
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+}
+
+.loading p {
+  font-size: 1.125rem;
+}
+
 .error {
   text-align: center;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
 }
 
 .header {
@@ -242,6 +350,32 @@ function formatDate(dateString: string): string {
 
 .item-details {
   color: #666;
+}
+
+.order-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+}
+
+.order-actions h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.final-status-message {
+  color: #666;
+  font-style: italic;
+  margin: 0;
+  padding: 0.5rem 0;
 }
 </style>
 

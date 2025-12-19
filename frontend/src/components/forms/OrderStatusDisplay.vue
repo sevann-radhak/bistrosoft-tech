@@ -1,17 +1,37 @@
 <template>
-  <span :class="['order-status', `status-${status.toLowerCase()}`]">
-    {{ status }}
+  <span :class="['order-status', `status-${statusString.toLowerCase()}`]">
+    {{ statusString }}
   </span>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { OrderStatus } from '../../services/api/types'
 
 interface Props {
-  status: OrderStatus
+  status: OrderStatus | string | number
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const statusString = computed(() => {
+  if (typeof props.status === 'string') {
+    return props.status
+  }
+  
+  if (typeof props.status === 'number') {
+    const statusMap: Record<number, string> = {
+      0: 'Pending',
+      1: 'Paid',
+      2: 'Shipped',
+      3: 'Delivered',
+      4: 'Cancelled'
+    }
+    return statusMap[props.status] || 'Unknown'
+  }
+  
+  return String(props.status)
+})
 </script>
 
 <style scoped>
