@@ -29,6 +29,20 @@ public class OrdersController : ControllerBase
     /// <response code="201">Order created successfully</response>
     /// <response code="400">Invalid input data or insufficient stock</response>
     /// <response code="404">Customer or product not found</response>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     POST /api/orders
+    ///     {
+    ///         "customerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ///         "items": [
+    ///             {
+    ///                 "productId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    ///                 "quantity": 2
+    ///             }
+    ///         ]
+    ///     }
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,6 +101,22 @@ public class OrdersController : ControllerBase
     /// <response code="200">Order status updated successfully</response>
     /// <response code="400">Invalid status transition or invalid input</response>
     /// <response code="404">Order not found</response>
+    /// <remarks>
+    /// Valid status transitions:
+    /// - Pending → Paid or Cancelled
+    /// - Paid → Shipped or Cancelled
+    /// - Shipped → Delivered
+    /// - Delivered → (no transitions allowed)
+    /// - Cancelled → (no transitions allowed)
+    /// 
+    /// Sample request:
+    /// 
+    ///     PUT /api/orders/{id}/status
+    ///     {
+    ///         "orderId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ///         "status": "Paid"
+    ///     }
+    /// </remarks>
     [HttpPut("{id}/status")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

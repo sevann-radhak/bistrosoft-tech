@@ -42,7 +42,17 @@ public class CustomersController : ControllerBase
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created customer with assigned ID</returns>
     /// <response code="201">Customer created successfully</response>
-    /// <response code="400">Invalid input data</response>
+    /// <response code="400">Invalid input data or email already exists</response>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     POST /api/customers
+    ///     {
+    ///         "name": "John Doe",
+    ///         "email": "john.doe@example.com",
+    ///         "phoneNumber": "+1234567890"
+    ///     }
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

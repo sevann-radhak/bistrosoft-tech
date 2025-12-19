@@ -43,6 +43,16 @@ public class ProductsController : ControllerBase
     /// <returns>Created product with assigned ID</returns>
     /// <response code="201">Product created successfully</response>
     /// <response code="400">Invalid input data</response>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     POST /api/products
+    ///     {
+    ///         "name": "Margherita Pizza",
+    ///         "price": 12.99,
+    ///         "stockQuantity": 50
+    ///     }
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
