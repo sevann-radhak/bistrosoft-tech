@@ -1,3 +1,4 @@
+using Bistrosoft.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bistrosoft.Infrastructure.Data;
@@ -9,6 +10,11 @@ public class ApplicationDbContext : DbContext
     {
     }
 
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -16,4 +22,5 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }
+
 

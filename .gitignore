@@ -174,3 +174,4 @@ docker-compose.override.yml
 
 ## Built Visual Studio Code Extensions
 *.vsix
+
