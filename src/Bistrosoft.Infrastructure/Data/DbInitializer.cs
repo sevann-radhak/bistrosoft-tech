@@ -7,9 +7,16 @@ public static class DbInitializer
 {
     public static async Task SeedProductsAsync(ApplicationDbContext context)
     {
-        if (await context.Products.AnyAsync())
+        try
         {
-            return;
+            if (await context.Products.AnyAsync())
+            {
+                return;
+            }
+        }
+        catch (Microsoft.Data.SqlClient.SqlException)
+        {
+            throw new InvalidOperationException("Database tables do not exist. Please ensure migrations have been applied.");
         }
 
         var products = new List<Product>

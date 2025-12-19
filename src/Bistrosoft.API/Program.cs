@@ -2,6 +2,7 @@ using System.Reflection;
 using Bistrosoft.API.Middleware;
 using Bistrosoft.Application;
 using Bistrosoft.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -42,13 +43,13 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:5000")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -60,7 +61,59 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<Bistrosoft.Infrastructure.Data.ApplicationDbContext>();
-    await Bistrosoft.Infrastructure.Data.DbInitializer.SeedProductsAsync(context);
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
+    try
+    {
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            logger.LogInformation("Applying database migrations...");
+            
+            try
+            {
+                var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+                if (pendingMigrations.Any())
+                {
+                    logger.LogInformation($"Found {pendingMigrations.Count()} pending migration(s)");
+                    await context.Database.MigrateAsync();
+                    logger.LogInformation("Database migrations applied successfully");
+                }
+                else
+                {
+                    logger.LogInformation("No pending migrations. Verifying database schema...");
+                    try
+                    {
+                        await context.Database.ExecuteSqlRawAsync("SELECT TOP 1 1 FROM Products");
+                        logger.LogInformation("Database schema verified");
+                    }
+                    catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 208)
+                    {
+                        logger.LogWarning("Database tables do not exist despite migrations being applied. This may indicate a corrupted database state.");
+                        logger.LogInformation("Attempting to reapply migrations...");
+                        await context.Database.MigrateAsync();
+                        logger.LogInformation("Migrations reapplied successfully");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error during migration process");
+                throw;
+            }
+        }
+        else
+        {
+            logger.LogInformation("Using in-memory database");
+        }
+        
+        await Bistrosoft.Infrastructure.Data.DbInitializer.SeedProductsAsync(context);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating or seeding the database");
+        throw;
+    }
 }
 
 if (app.Environment.IsDevelopment())
