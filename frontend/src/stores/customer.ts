@@ -3,11 +3,18 @@ import { ref, computed } from 'vue'
 import { customerService } from '../services/api'
 import type { CustomerDto, CreateCustomerDto, OrderDto } from '../services/api/types'
 
+interface ErrorInfo {
+  message: string
+  title?: string
+  fieldErrors?: Record<string, string[]>
+}
+
 export const useCustomerStore = defineStore('customer', () => {
   const customers = ref<CustomerDto[]>([])
   const currentCustomer = ref<CustomerDto | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const errorInfo = ref<ErrorInfo | null>(null)
 
   const customerById = computed(() => (id: string) => {
     return customers.value.find(c => c.id === id)
@@ -16,12 +23,19 @@ export const useCustomerStore = defineStore('customer', () => {
   async function createCustomer(data: CreateCustomerDto): Promise<CustomerDto> {
     loading.value = true
     error.value = null
+    errorInfo.value = null
     try {
       const customer = await customerService.create(data)
       customers.value.push(customer)
       return customer
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create customer'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create customer'
+      error.value = errorMessage
+      errorInfo.value = {
+        message: errorMessage,
+        title: (err as any)?.title,
+        fieldErrors: (err as any)?.errors
+      }
       throw err
     } finally {
       loading.value = false
@@ -31,11 +45,18 @@ export const useCustomerStore = defineStore('customer', () => {
   async function fetchAllCustomers(): Promise<void> {
     loading.value = true
     error.value = null
+    errorInfo.value = null
     try {
       const allCustomers = await customerService.getAll()
       customers.value = allCustomers
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch customers'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch customers'
+      error.value = errorMessage
+      errorInfo.value = {
+        message: errorMessage,
+        title: (err as any)?.title,
+        fieldErrors: (err as any)?.errors
+      }
       throw err
     } finally {
       loading.value = false
@@ -45,6 +66,7 @@ export const useCustomerStore = defineStore('customer', () => {
   async function fetchCustomer(id: string): Promise<void> {
     loading.value = true
     error.value = null
+    errorInfo.value = null
     try {
       const customer = await customerService.getById(id)
       currentCustomer.value = customer
@@ -55,7 +77,13 @@ export const useCustomerStore = defineStore('customer', () => {
         customers.value.push(customer)
       }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch customer'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch customer'
+      error.value = errorMessage
+      errorInfo.value = {
+        message: errorMessage,
+        title: (err as any)?.title,
+        fieldErrors: (err as any)?.errors
+      }
       throw err
     } finally {
       loading.value = false
@@ -65,6 +93,7 @@ export const useCustomerStore = defineStore('customer', () => {
   async function fetchCustomerOrders(id: string): Promise<OrderDto[]> {
     loading.value = true
     error.value = null
+    errorInfo.value = null
     try {
       const orders = await customerService.getOrders(id)
       if (currentCustomer.value && currentCustomer.value.id === id) {
@@ -72,7 +101,13 @@ export const useCustomerStore = defineStore('customer', () => {
       }
       return orders
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch customer orders'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch customer orders'
+      error.value = errorMessage
+      errorInfo.value = {
+        message: errorMessage,
+        title: (err as any)?.title,
+        fieldErrors: (err as any)?.errors
+      }
       throw err
     } finally {
       loading.value = false
@@ -81,6 +116,7 @@ export const useCustomerStore = defineStore('customer', () => {
 
   function clearError(): void {
     error.value = null
+    errorInfo.value = null
   }
 
   function setCurrentCustomer(customer: CustomerDto | null): void {
@@ -92,6 +128,7 @@ export const useCustomerStore = defineStore('customer', () => {
     currentCustomer,
     loading,
     error,
+    errorInfo,
     customerById,
     createCustomer,
     fetchAllCustomers,

@@ -2,7 +2,11 @@
   <div class="create-customer-view">
     <h1>Create Customer</h1>
     <form @submit.prevent="handleSubmit" class="customer-form">
-      <ErrorMessage :message="customerStore.error" />
+      <ErrorMessage 
+        :message="customerStore.error" 
+        :title="customerStore.errorInfo?.title"
+        :field-errors="customerStore.errorInfo?.fieldErrors"
+      />
       
       <InputField
         id="name"

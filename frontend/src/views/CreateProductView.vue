@@ -6,7 +6,11 @@
     </div>
     
     <form @submit.prevent="handleSubmit" class="product-form">
-      <ErrorMessage :message="productStore.error" />
+      <ErrorMessage 
+        :message="productStore.error"
+        :title="productStore.errorInfo?.title"
+        :field-errors="productStore.errorInfo?.fieldErrors"
+      />
       
       <div class="form-section">
         <InputField

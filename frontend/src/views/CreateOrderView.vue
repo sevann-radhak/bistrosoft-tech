@@ -6,7 +6,11 @@
     </div>
     
     <form @submit.prevent="handleSubmit" class="order-form">
-      <ErrorMessage :message="orderStore.error || customerStore.error || productStore.error" />
+      <ErrorMessage 
+        :message="orderStore.error || customerStore.error || productStore.error"
+        :title="orderStore.errorInfo?.title || customerStore.errorInfo?.title || productStore.errorInfo?.title"
+        :field-errors="orderStore.errorInfo?.fieldErrors || customerStore.errorInfo?.fieldErrors || productStore.errorInfo?.fieldErrors"
+      />
       
       <div class="form-section customer-section">
         <label class="section-label">

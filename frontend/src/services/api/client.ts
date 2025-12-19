@@ -40,31 +40,84 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response) {
       const status = error.response.status
-      const data = error.response.data as { message?: string; errors?: Record<string, string[]> }
+      const data = error.response.data as any
+      
+      let errorMessage = 'An error occurred'
+      let errorDetails: { title?: string; errors?: Record<string, string[]> } = {}
+      
+      if (data) {
+        if (data.detail) {
+          errorMessage = data.detail
+        } else if (data.message) {
+          errorMessage = data.message
+        }
+        
+        if (data.title) {
+          errorDetails.title = data.title
+        }
+        
+        if (data.errors) {
+          errorDetails.errors = data.errors
+          
+          if (Object.keys(data.errors).length > 0) {
+            const firstField = Object.keys(data.errors)[0]
+            const firstError = data.errors[firstField]?.[0]
+            if (firstError) {
+              errorMessage = `${firstField}: ${firstError}`
+            }
+          }
+        }
+      }
+      
+      const enhancedError = new Error(errorMessage) as Error & { 
+        title?: string
+        status?: number
+        errors?: Record<string, string[]>
+      }
+      
+      enhancedError.title = errorDetails.title
+      enhancedError.status = status
+      enhancedError.errors = errorDetails.errors
       
       switch (status) {
         case 400:
-          throw new Error(data.message || 'Bad request')
+          break
         case 401:
           localStorage.removeItem('authToken')
-          throw new Error('Unauthorized')
+          if (!errorMessage.includes('Unauthorized')) {
+            enhancedError.message = 'Your session has expired. Please log in again.'
+          }
+          break
         case 403:
-          throw new Error('Forbidden')
+          if (!errorMessage.includes('Forbidden')) {
+            enhancedError.message = 'You do not have permission to perform this action.'
+          }
+          break
         case 404:
-          throw new Error('Resource not found')
+          if (!errorMessage.includes('not found')) {
+            enhancedError.message = 'The requested resource was not found.'
+          }
+          break
         case 405:
-          throw new Error('Method not allowed')
+          enhancedError.message = 'This action is not allowed.'
+          break
         case 422:
-          throw new Error(data.message || 'Validation error')
+          if (!errorMessage.includes('Validation')) {
+            enhancedError.message = errorMessage || 'Please check your input and try again.'
+          }
+          break
         case 500:
-          throw new Error('Internal server error')
+          enhancedError.message = 'A server error occurred. Please try again later.'
+          break
         default:
-          throw new Error(data.message || 'An error occurred')
+          break
       }
+      
+      throw enhancedError
     } else if (error.request) {
-      throw new Error('Network error. Please check your connection.')
+      throw new Error('Unable to connect to the server. Please check your internet connection and try again.')
     } else {
-      throw new Error('An unexpected error occurred')
+      throw new Error('An unexpected error occurred. Please try again.')
     }
   }
 )
