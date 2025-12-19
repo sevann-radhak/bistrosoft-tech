@@ -8,3 +8,5 @@ public class Product
     public int StockQuantity { get; set; }
 }
 
+
+

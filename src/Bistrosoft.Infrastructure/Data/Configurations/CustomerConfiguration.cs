@@ -19,14 +19,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.OwnsOne(c => c.Email, emailBuilder =>
         {
-            //emailBuilder.Property(e => e.Value)
-            //    .HasColumnName("Email")
-            //    .IsRequired()
-            //    .HasMaxLength(320);
+            emailBuilder.Property(e => e.Value)
+                .IsRequired()
+                .HasMaxLength(320);
         });
-
-        builder.HasIndex("Email")
-            .IsUnique();
 
         builder.Property(c => c.PhoneNumber)
             .HasMaxLength(20);
@@ -37,4 +33,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+
+
 

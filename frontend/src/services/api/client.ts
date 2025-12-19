@@ -40,6 +40,8 @@ apiClient.interceptors.response.use(
           throw new Error('Forbidden')
         case 404:
           throw new Error('Resource not found')
+        case 405:
+          throw new Error('Method not allowed')
         case 422:
           throw new Error(data.message || 'Validation error')
         case 500:
@@ -56,4 +58,6 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
+
+
 

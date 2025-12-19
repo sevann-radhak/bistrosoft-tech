@@ -5,3 +5,5 @@ namespace Bistrosoft.Application.Queries;
 
 public record GetCustomerByIdQuery(Guid Id) : IRequest<CustomerDto?>;
 
+
+

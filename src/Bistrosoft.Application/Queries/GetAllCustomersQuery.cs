@@ -3,7 +3,4 @@ using MediatR;
 
 namespace Bistrosoft.Application.Queries;
 
-public record GetOrderByIdQuery(Guid Id) : IRequest<OrderDto?>;
-
-
-
+public record GetAllCustomersQuery : IRequest<IEnumerable<CustomerDto>>;

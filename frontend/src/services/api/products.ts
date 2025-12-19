@@ -6,3 +6,5 @@ export const productService = {
     apiClient.get('/products')
 }
 
+
+

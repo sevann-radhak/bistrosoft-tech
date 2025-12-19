@@ -28,6 +28,20 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
+  async function fetchAllCustomers(): Promise<void> {
+    loading.value = true
+    error.value = null
+    try {
+      const allCustomers = await customerService.getAll()
+      customers.value = allCustomers
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch customers'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function fetchCustomer(id: string): Promise<void> {
     loading.value = true
     error.value = null
@@ -80,6 +94,7 @@ export const useCustomerStore = defineStore('customer', () => {
     error,
     customerById,
     createCustomer,
+    fetchAllCustomers,
     fetchCustomer,
     fetchCustomerOrders,
     clearError,

@@ -2,6 +2,7 @@ using Bistrosoft.Application.Commands;
 using Bistrosoft.Application.DTOs;
 using Bistrosoft.Application.Mappings;
 using Bistrosoft.Domain.Enums;
+using Bistrosoft.Domain.Exceptions;
 using Bistrosoft.Domain.Interfaces;
 using MediatR;
 
@@ -21,12 +22,12 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
         var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order == null)
         {
-            throw new InvalidOperationException($"Order with ID '{request.OrderId}' not found.");
+            throw new NotFoundException("Order", request.OrderId);
         }
 
         if (!IsValidStatusTransition(order.Status, request.Status))
         {
-            throw new InvalidOperationException(
+            throw new BusinessRuleException(
                 $"Invalid status transition from '{order.Status}' to '{request.Status}'.");
         }
 
@@ -49,4 +50,6 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
         };
     }
 }
+
+
 

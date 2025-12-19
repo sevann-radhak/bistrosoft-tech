@@ -28,3 +28,5 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     }
 }
 
+
+

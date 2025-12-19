@@ -2,6 +2,7 @@ using Bistrosoft.Application.Commands;
 using Bistrosoft.Application.DTOs;
 using Bistrosoft.Application.Mappings;
 using Bistrosoft.Domain.Entities;
+using Bistrosoft.Domain.Exceptions;
 using Bistrosoft.Domain.Interfaces;
 using Bistrosoft.Domain.ValueObjects;
 using MediatR;
@@ -22,7 +23,7 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
         var existingCustomer = await _customerRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingCustomer != null)
         {
-            throw new InvalidOperationException($"Customer with email '{request.Email}' already exists.");
+            throw new BusinessRuleException($"Customer with email '{request.Email}' already exists.");
         }
 
         var email = Email.Create(request.Email);
@@ -38,4 +39,6 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
         return createdCustomer.ToDto();
     }
 }
+
+
 

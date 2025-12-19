@@ -3,6 +3,7 @@ using Bistrosoft.Application.DTOs;
 using Bistrosoft.Application.Mappings;
 using Bistrosoft.Domain.Entities;
 using Bistrosoft.Domain.Enums;
+using Bistrosoft.Domain.Exceptions;
 using Bistrosoft.Domain.Interfaces;
 using MediatR;
 
@@ -29,12 +30,12 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
         var customer = await _customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
         if (customer == null)
         {
-            throw new InvalidOperationException($"Customer with ID '{request.CustomerId}' not found.");
+            throw new NotFoundException("Customer", request.CustomerId);
         }
 
         if (request.Items == null || !request.Items.Any())
         {
-            throw new InvalidOperationException("Order must contain at least one item.");
+            throw new BusinessRuleException("Order must contain at least one item.");
         }
 
         var orderItems = new List<OrderItem>();
@@ -45,12 +46,12 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
             var product = await _productRepository.GetByIdAsync(itemRequest.ProductId, cancellationToken);
             if (product == null)
             {
-                throw new InvalidOperationException($"Product with ID '{itemRequest.ProductId}' not found.");
+                throw new NotFoundException("Product", itemRequest.ProductId);
             }
 
             if (product.StockQuantity < itemRequest.Quantity)
             {
-                throw new InvalidOperationException(
+                throw new BusinessRuleException(
                     $"Insufficient stock for product '{product.Name}'. Available: {product.StockQuantity}, Requested: {itemRequest.Quantity}");
             }
 
@@ -88,4 +89,6 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
         return createdOrder.ToDto();
     }
 }
+
+
 

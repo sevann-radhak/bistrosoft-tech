@@ -20,6 +20,22 @@ public class CustomersController : ControllerBase
     }
 
     /// <summary>
+    /// Gets all customers
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of all customers</returns>
+    /// <response code="200">Customers retrieved successfully</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<CustomerDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAllCustomers(
+        CancellationToken cancellationToken)
+    {
+        var query = new GetAllCustomersQuery();
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Creates a new customer
     /// </summary>
     /// <param name="dto">Customer creation data</param>
@@ -88,4 +104,6 @@ public class CustomersController : ControllerBase
         return Ok(result);
     }
 }
+
+
 

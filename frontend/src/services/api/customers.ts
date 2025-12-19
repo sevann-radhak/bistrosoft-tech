@@ -2,6 +2,9 @@ import apiClient from './client'
 import type { CustomerDto, CreateCustomerDto, OrderDto } from './types'
 
 export const customerService = {
+  getAll: (): Promise<CustomerDto[]> => 
+    apiClient.get('/customers'),
+  
   create: (data: CreateCustomerDto): Promise<CustomerDto> => 
     apiClient.post('/customers', data),
   
@@ -11,4 +14,6 @@ export const customerService = {
   getOrders: (id: string): Promise<OrderDto[]> => 
     apiClient.get(`/customers/${id}/orders`)
 }
+
+
 

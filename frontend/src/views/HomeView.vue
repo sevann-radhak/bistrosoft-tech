@@ -37,7 +37,7 @@ const productStore = useProductStore()
 onMounted(async () => {
   if (customerStore.customers.length === 0) {
     try {
-      await customerStore.fetchCustomer('')
+      await customerStore.fetchAllCustomers()
     } catch (error) {
       console.error('Failed to fetch customers:', error)
     }
@@ -91,4 +91,6 @@ h1 {
 }
 
 </style>
+
+
 

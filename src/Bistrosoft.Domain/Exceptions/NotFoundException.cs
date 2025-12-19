@@ -17,3 +17,5 @@ public class NotFoundException : DomainException
     public object? Key { get; }
 }
 
+
+
